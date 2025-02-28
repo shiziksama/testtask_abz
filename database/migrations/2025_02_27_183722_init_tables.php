@@ -23,9 +23,9 @@ return new class extends Migration
             $table->timestamps();
         });
         Schema::table('users', function (Blueprint $table) {
-            $table->string('phone', 15)->unique()->after('email');
+            $table->string('phone', 15)->default('')->unique()->after('email');
             $table->integer('position_id')->after('phone');
-            $table->string('photo')->after('position_id');
+            $table->string('photo')->default('')->after('position_id');
 
             $table->foreign('position_id')->references('id')->on('positions')->onDelete('cascade');
         });

@@ -25,7 +25,7 @@ class ApiTokensMiddleware
             ], 401);
         }
 
-        $apiToken = Token::where('token', $token)->first();
+        $apiToken = Token::where('token', hash('sha256', $token))->first();
         if($apiToken->used >= 1) {
             return response()->json([
                 'success' => false,

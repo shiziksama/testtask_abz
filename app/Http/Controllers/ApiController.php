@@ -7,8 +7,12 @@ use App\Models\User;
 use App\Models\Position;
 use App\Models\Token;
 use Illuminate\Support\Facades\Validator;
-use Intervention\Image\Facades\Image;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Laravel\Facades\Image;
+use Tinify\Tinify;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 
 class ApiController extends Controller
 {
@@ -19,7 +23,8 @@ class ApiController extends Controller
 
         // Save the token to the database
         $token = new Token();
-        $token->token = $tokenString;
+        $token->token = hash('sha256', $tokenString);
+        $token->used = 0;
         $token->save();
 
         return response()->json(['success' => true, 'token' => $tokenString]);
@@ -31,7 +36,7 @@ class ApiController extends Controller
             'name' => 'required|string|min:2|max:60',
             'email' => 'required|email|max:100',
             'phone' => 'required|regex:/^[\+]{0,1}380([0-9]{9})$/',
-            'position_id' => 'required|integer|min:1',
+            'position_id' => 'required|integer|exists:\App\Models\Position,id',
             'photo' => 'required|image|mimes:jpeg,jpg|max:5120'
         ]);
 
@@ -54,14 +59,18 @@ class ApiController extends Controller
         // Handle the photo upload
         if ($request->hasFile('photo')) {
             $photo = $request->file('photo');
-            $photoPath = $photo->store('photos', 'public');
-
             // Crop the image to 70x70px
-            //TODO make from storage
-            $image = Image::make(storage_path('app/public/' . $photoPath))->crop(70, 70, 0, 0, position: 'center');
+            $image = Image::read($photo)->crop(70, 70, 0, 0, position: 'center');
 
             $sourceData=$image->toJpeg();
-            $resultData = \Tinify\fromBuffer($sourceData)->toFile($photoPath);
+            Tinify::setKey('aK25-Ck4rFIoksT6hBtUL7eLi7zJW8j6');
+            $photoPath=Str::random() . '.' . $photo->getClientOriginalExtension();
+            $resultData = \Tinify\fromBuffer($sourceData)->toBuffer();
+            
+            Storage::disk('public')->put(
+                $photoPath,
+                $resultData
+            );
             
             $user->photo = $photoPath;
         }
