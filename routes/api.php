@@ -8,7 +8,6 @@ Route::get('/users', [ApiController::class, 'getUsers']);
 Route::get('/users/{id}', [ApiController::class, 'getUserById']);
 Route::get('/positions', [ApiController::class, 'getPositions']);
 
-Route::middleware([ApiTokensMiddleware::class])->group(function () {
-    Route::post('/users', [ApiController::class, 'registerUser']);
-});
+
+Route::post('/users', [ApiController::class, 'registerUser'])->middleware(ApiTokensMiddleware::class);
 

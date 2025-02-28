@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Faker\Factory as Faker;
+use Illuminate\Support\Facades\Storage;
 
 class UserSeeder extends Seeder
 {
@@ -22,7 +23,7 @@ class UserSeeder extends Seeder
                 'email' => $faker->unique()->safeEmail,
                 'phone' => '+380' . $faker->numerify('#########'),
                 'position_id' => $faker->numberBetween(1, 10),
-                'photo' => $faker->image('public/images', 70, 70, 'people', false), // Generates a random image
+                'photo' => $faker->image(Storage::disk('public')->path('images'), 70, 70, 'people', false), // Generates a random image
                 // add other fields as necessary
             ]);
         }

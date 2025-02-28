@@ -63,8 +63,8 @@ class ApiController extends Controller
             $image = Image::read($photo)->crop(70, 70, 0, 0, position: 'center');
 
             $sourceData=$image->toJpeg();
-            Tinify::setKey('aK25-Ck4rFIoksT6hBtUL7eLi7zJW8j6');
-            $photoPath=Str::random() . '.' . $photo->getClientOriginalExtension();
+            Tinify::setKey(env('TINIFY_KEY'));
+            $photoPath='images/'.Str::random() . '.' . $photo->getClientOriginalExtension();
             $resultData = \Tinify\fromBuffer($sourceData)->toBuffer();
             
             Storage::disk('public')->put(
@@ -77,7 +77,7 @@ class ApiController extends Controller
 
         $user->save();
 
-        return response()->json(['success' => true, 'message' => 'New user successfully registered']);
+        return response()->json(['success' => true,'user_id'=>$user->id, 'message' => 'New user successfully registered']);
     }
 
     public function getUsers(Request $request)
