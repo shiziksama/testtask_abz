@@ -24,7 +24,7 @@ return new class extends Migration
         });
         Schema::table('users', function (Blueprint $table) {
             $table->string('phone', 15)->default('')->unique()->after('email');
-            $table->integer('position_id')->after('phone');
+            $table->integer('position_id')->default(0)->after('phone');
             $table->string('photo')->default('')->after('position_id');
 
             $table->foreign('position_id')->references('id')->on('positions')->onDelete('cascade');
